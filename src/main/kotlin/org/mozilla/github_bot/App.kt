@@ -10,11 +10,15 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 
 fun Application.main() {
-    install(DefaultHeaders)
-    install(CallLogging)
-    install(Routing) {
+    installFeatures()
+    routing {
         get("/") {
             call.respondText("Hello world")
         }
     }
+}
+
+private fun Application.installFeatures() {
+    install(DefaultHeaders)
+    install(CallLogging)
 }
