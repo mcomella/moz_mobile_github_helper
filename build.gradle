@@ -46,3 +46,12 @@ dependencies {
     compile "io.ktor:ktor-server-netty:$ktor_version"
     testCompile 'junit:junit:4.12'
 }
+
+jar {
+    manifest.attributes(
+            "Main-Class": mainClassName,
+    )
+
+    // Create fat jar, via https://medium.com/@preslavrachev/kotlin-basics-create-executable-kotlin-jars-using-gradle-d17e9a8384b9
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
