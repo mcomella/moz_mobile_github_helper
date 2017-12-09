@@ -3,9 +3,11 @@ A bot to help us with tedious github tasks.
 
 ## Running
 There are standard gradle tasks:
-- `build`
+- `assemble`: builds the code
+- `build`: builds and tests the code
+- `run`: assembles and executes the application
+- `test`
 - `clean`
-- `run` (build and executes application)
 
 For continuous rebuilds, which watches for any changes to `src/`, we recommend:
 ```sh
