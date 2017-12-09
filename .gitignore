@@ -4,5 +4,6 @@
 *.iml
 
 # Build
+./app.jar
 .gradle
 build/
