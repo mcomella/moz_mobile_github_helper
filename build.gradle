@@ -48,6 +48,9 @@ dependencies {
 }
 
 jar {
+    baseName = 'app' // todo: more descriptive
+    version = '0.0.1' // todo: where else set version?
+
     manifest.attributes(
             "Main-Class": mainClassName,
     )

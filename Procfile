@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT $JAVA_OPTS -jar build/libs/moz_mobile_github_helper.jar
+web: java -Dserver.port=$PORT $JAVA_OPTS -jar build/libs/app-0.0.1.jar
