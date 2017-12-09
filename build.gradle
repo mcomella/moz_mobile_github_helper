@@ -47,8 +47,10 @@ dependencies {
     // but there are many other good Java choices.
     compile "io.ktor:ktor-server-netty:$ktor_version"
     compile "ch.qos.logback:logback-classic:1.2.1" // ktor logger.
+    testCompile "io.ktor:ktor-server-test-host:$ktor_version"
 
-    testCompile 'junit:junit:4.12'
+    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 }
 
 jar {
