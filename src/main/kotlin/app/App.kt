@@ -7,8 +7,12 @@ import io.ktor.routing.*
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 
+private const val PORT_PROPERTY = "server.port"
+
 fun main(args: Array<String>) {
-    val server = embeddedServer(Netty, 8080) {
+    val port = System.getProperty(PORT_PROPERTY).toInt()
+
+    val server = embeddedServer(Netty, port) {
         routing {
             get("/") {
                 call.respondText("Hello, world!", ContentType.Text.Html)
