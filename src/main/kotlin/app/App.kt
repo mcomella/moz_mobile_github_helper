@@ -10,9 +10,7 @@ import io.ktor.server.netty.Netty
 private const val PORT_PROPERTY = "server.port"
 
 fun main(args: Array<String>) {
-    val port = System.getProperty(PORT_PROPERTY).toInt()
-    args.forEach { println(it) }
-    // need to listen on differnt address
+    val port = System.getProperty(PORT_PROPERTY, "8080").toInt()
 
     val server = embeddedServer(Netty, port) {
         routing {
