@@ -60,19 +60,18 @@ jar {
             "Main-Class": mainClassName,
     )
 
-    // Create fat jar, via https://medium.com/@preslavrachev/kotlin-basics-create-executable-kotlin-jars-using-gradle-d17e9a8384b9
+    // Create fat jar, via
+    // https://medium.com/@preslavrachev/kotlin-basics-create-executable-kotlin-jars-using-gradle-d17e9a8384b9
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
+// Copy to an unversioned JAR so we don't have to update the jar
+// version in the procfile on update.
 task stage(type: Copy, dependsOn: [clean, build]) {
     from jar.archivePath
-    into project.rootDir
+    into 'build/stage/'
     rename {
         'app.jar'
     }
 }
 stage.mustRunAfter(clean)
-
-clean.doLast {
-    project.file('app.jar').delete()
-}
