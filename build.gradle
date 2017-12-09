@@ -15,7 +15,7 @@ apply plugin: 'kotlin'
 
 apply plugin: 'application'
 
-mainClassName = 'app.AppKt'
+mainClassName = 'org.mozilla.github_bot.AppKt'
 
 sourceCompatibility = 1.8
 compileKotlin {

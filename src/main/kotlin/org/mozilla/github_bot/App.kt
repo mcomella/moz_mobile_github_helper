@@ -1,4 +1,4 @@
-package app
+package org.mozilla.github_bot
 
 import io.ktor.application.call
 import io.ktor.http.ContentType
