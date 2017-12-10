@@ -7,13 +7,14 @@ import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.withTestApplication
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.todo
 
 class AppTest {
 
     @Test
     fun test() = withTestApplication(Application::main) {
         with (handleRequest(HttpMethod.Get, "/")) {
-            assertEquals(HttpStatusCode.OK, response.status())
+            todo { "implement me!" }
         }
     }
 }
