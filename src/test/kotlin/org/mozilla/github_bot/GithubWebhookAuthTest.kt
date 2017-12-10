@@ -39,7 +39,7 @@ internal class GithubWebhookAuthTest {
     }
 
     @Test
-    fun `Request is authorized when github secret and remote signature header is present`() {
+    fun `Request is authorized when local secret and remote header is present and comparison succeeds`() {
         assertTrue(GithubWebhookAuth.isRequestAuthorized(envVarWithSecret, headersWithRemoteSig, "",
                 localRemoteSuccess))
     }
