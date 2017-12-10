@@ -16,7 +16,7 @@ fun Application.main() {
     routing {
         post("/") {
             val payload = call.request.receiveContent().readText()
-            if (!doesGithubSecretMatch(call.request.headers, payload)) {
+            if (!GithubWebhookAuth.isRequestAuthorized(EnvVar, call.request.headers, payload)) {
                 call.respond(HttpStatusCode.Forbidden)
             } else {
                 call.respond(HttpStatusCode.OK)
