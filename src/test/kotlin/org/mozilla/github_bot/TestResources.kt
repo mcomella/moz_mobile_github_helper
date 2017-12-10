@@ -30,7 +30,7 @@ private fun File.readHeaders() = ValuesMapBuilder().apply {
         val headerAndValue = it.split(":", limit = 2)
         append(headerAndValue[0], headerAndValue[1].trim())
     }
-}.build().also { print(it) }
+}.build()
 
 // In order for these values to be identical to the requests, they cannot contain a newline character at the end.
 private fun File.readTextAndRemoveSuffixNewline(): String = readText().removeSuffix("\n")
