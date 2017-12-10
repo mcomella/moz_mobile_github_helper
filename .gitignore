@@ -1,7 +1,5 @@
-# IDEA
-.idea/tasks.xml
-.idea/workspace.xml
-*.iml
+# IDEs: they can import from gradle
+.idea/
 
 # Build
 .gradle
