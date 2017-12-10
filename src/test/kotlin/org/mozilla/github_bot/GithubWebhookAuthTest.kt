@@ -51,7 +51,9 @@ internal class GithubWebhookAuthTest {
     }
 
     @Test
-    fun `Secrets match with known hardcoded match`() {
-        todo { "Implement me to prevent regressions!" }
+    fun `Secrets match with known spoon-knife request`() = with(TestResources.spoonKnifePing) {
+        val remoteSignature = headers.get(HEADER_GITHUB_SECRET_SIG) as String
+        assertTrue(GithubWebhookAuth.doSecretsMatch(remoteSignature = remoteSignature, localSecret = localSecret,
+                payload = payload))
     }
 }
