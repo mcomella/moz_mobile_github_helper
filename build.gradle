@@ -43,6 +43,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile 'com.beust:klaxon:0.30'
+    compile 'com.squareup.okhttp3:okhttp:3.9.1'
 
     // We choose ktor because it's kotlin-based and recommended by JetBrains,
     // but there are many other good Java choices.
