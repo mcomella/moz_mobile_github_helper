@@ -28,6 +28,7 @@ private enum class GithubWebhookType {
 
 object GithubWebhookDispatcher {
     // If we wanted to make this more testable, we could have a registerListener call to decouple.
+    // This would also allow us to have multiple separated functions to handle a single request.
     suspend fun dispatch(call: ApplicationCall) {
         val payload = call.request.receiveContent().readText()
         if (!GithubWebhookAuth.isRequestAuthorized(EnvVar, call.request.headers, payload)) {
@@ -51,41 +52,52 @@ object GithubWebhookDispatcher {
             return
         }
 
-        // TODO: can execute requests concurrently? if so, no need for async. if so, need async.
-        // TODO: async vs. run vs. launch
         when (webhookType) {
-            GithubWebhookType.PULL_REQUEST -> GithubWebhookPullRequestDispatcher.dispatch(payloadJSON)
+            GithubWebhookType.PULL_REQUEST -> GithubWebhookPullRequestDispatcher.dispatch(call, payloadJSON)
         }
-        call.respondAndLog(HttpStatusCode.OK)
     }
 }
 
-object GithubWebhookPullRequestDispatcher {
-    // todo: maybe extract common fields for handle? e.g. repo, owner, issue #
-    fun dispatch(payload: JsonObject) {
+private object GithubWebhookPullRequestDispatcher {
+    suspend fun dispatch(call: ApplicationCall, payload: JsonObject) {
         val prAction = payload.string("action")
         when (prAction) {
-            "opened" -> linkPRsToIssuesFromOpenedPayload(payload)
-            else -> println("Unable to respond to request: PR action, $prAction, not implemented")
+            "opened" -> dispatchPROpened(call, payload)
+            else -> call.respondAndLog(HttpStatusCode.NotImplemented, "PR action, $prAction, not implemented")
         }
     }
 
     // todo: testing
-    // todo: one function shoudl extract params from json, other fn with field should be in separate module.
-    fun linkPRsToIssuesFromOpenedPayload(payload: JsonObject) {
+    suspend fun dispatchPROpened(call: ApplicationCall, payload: JsonObject) {
         val pr = payload.obj("pull_request")
-        if (pr == null) { println("Empty pull request: unable to handle request"); return }
+        val prNumber = pr?.long("number")
+
+        val repo = payload.obj("repository")
+        val repoName = repo?.string("name")
+        val repoOwner = repo?.obj("owner")?.string("login")
+
+        if (prNumber == null ||
+                repoName == null ||
+                repoOwner == null) {
+            call.respondAndLog(HttpStatusCode.BadRequest, "Pull request is missing expected fields")
+            return
+        }
+
         val initialComment = pr.string("body") ?: ""
 
-        // dest vs. src
-        val prNumber = pr.long("number")
-        val prOwner = pr.string("owner")
+        // TODO: can execute requests concurrently? if so, no need for async. if so, need async. serially.
+        // TODO: async vs. run vs. launch
+        call.respondAndLog(HttpStatusCode.OK)
+        linkIssuesToPRs(repoOwner = repoOwner, repoName = repoName, prNumber = prNumber, initialComment = initialComment)
+    }
 
-        async { println("getting prs") }
-
-        // get commits
+    // todo: move to separate module
+    suspend fun linkIssuesToPRs(repoOwner: String, repoName: String, prNumber: Long, initialComment: String) {
+        println("linking")
+        // get new commits from pull_request/head/repo
         // search commits for issue #'s
-        // Rewrite PR comment with Issue #'s (closes)
-        // Rewrite Issues comment with PR #'s (closes)
+
+        // Rewrite current repo PR with Issue #'s (closes)
+        // Rewrite current repo Issues comment with PR #'s (closes)
     }
 }
