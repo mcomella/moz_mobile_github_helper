@@ -11,6 +11,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import kotlinx.coroutines.experimental.async
 import org.mozilla.github_bot.ext.parseRaw
+import org.mozilla.github_bot.ext.parseStr
 import org.mozilla.github_bot.ext.respondAndLog
 
 private const val HEADER_GITHUB_EVENT = "X-Github-Event"
@@ -46,7 +47,7 @@ object GithubWebhookDispatcher {
     }
 
     private suspend fun dispatchByType(call: ApplicationCall, webhookType: GithubWebhookType, payload: String) {
-        val payloadJSON = Parser().parseRaw(payload) as JsonObject?
+        val payloadJSON = Parser().parseStr(payload) as JsonObject? // todo: cast failure?
         if (payloadJSON == null) {
             call.respondAndLog(HttpStatusCode.BadRequest, "Unable to parse payload JSON")
             return
