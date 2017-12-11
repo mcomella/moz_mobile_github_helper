@@ -31,7 +31,7 @@ object GithubWebhookAuth {
     }
 
     // via https://developer.github.com/webhooks/securing/#validating-payloads-from-github
-    // Note: this could be built as a ktor feature.
+    // Note: this could be built as a ktor feature, or github API library.
     fun doSecretsMatch(remoteSignature: String, localSecret: String, payload: String): Boolean {
         val keySpec = SecretKeySpec(localSecret.toByteArray(), SIGNATURE_ALGORITHM)
         val mac = Mac.getInstance(SIGNATURE_ALGORITHM)

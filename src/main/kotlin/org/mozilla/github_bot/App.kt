@@ -11,9 +11,7 @@ import io.ktor.routing.routing
 fun Application.main() {
     installFeatures()
     routing {
-        post("/") {
-            GithubWebhook.handle(call)
-        }
+        post("/") { GithubWebhookDispatcher.dispatch(call) }
     }
 }
 
