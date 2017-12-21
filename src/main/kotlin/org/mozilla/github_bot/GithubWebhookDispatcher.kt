@@ -9,10 +9,12 @@ import io.ktor.application.ApplicationCall
 import io.ktor.content.readText
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
-import kotlinx.coroutines.experimental.async
-import org.mozilla.github_bot.ext.parseRaw
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.launch
+import okhttp3.HttpUrl
 import org.mozilla.github_bot.ext.parseStr
 import org.mozilla.github_bot.ext.respondAndLog
+import org.mozilla.github_bot.ext.toHttpUrl
 
 private const val HEADER_GITHUB_EVENT = "X-Github-Event"
 
@@ -36,6 +38,7 @@ object GithubWebhookDispatcher {
             call.respond(HttpStatusCode.Forbidden)
 
         } else {
+            // todo: verify content type.
             val webhookTypeRaw = call.request.headers.get(HEADER_GITHUB_EVENT) ?: ""
             val webhookType = GithubWebhookType.fromString(webhookTypeRaw)
             if (webhookType == null) {
@@ -71,34 +74,57 @@ private object GithubWebhookPullRequestDispatcher {
     // todo: testing
     suspend fun dispatchPROpened(call: ApplicationCall, payload: JsonObject) {
         val pr = payload.obj("pull_request")
+
+        val prURL = pr?.string("url").toHttpUrl()
+        val commitsURL = pr?.string("commits_url").toHttpUrl()
+
+        if (pr == null ||
+                prURL == null ||
+                commitsURL == null) {
+            call.respondAndLog(HttpStatusCode.BadRequest, "Cannot get expected URLs from pull request")
+            return
+        }
+
+        val initialComment = pr.string("body") ?: ""
+        linkOpenedPRToIssues(prURL = prURL, commitsURL = commitsURL, initialPRComment = initialComment)
+
         val prNumber = pr?.long("number")
+
 
         val repo = payload.obj("repository")
         val repoName = repo?.string("name")
         val repoOwner = repo?.obj("owner")?.string("login")
 
-        if (prNumber == null ||
-                repoName == null ||
-                repoOwner == null) {
-            call.respondAndLog(HttpStatusCode.BadRequest, "Pull request is missing expected fields")
-            return
-        }
-
-        val initialComment = pr.string("body") ?: ""
-
+        // TODO: async (return result) vs. run vs. launch
         // TODO: can execute requests concurrently? if so, no need for async. if so, need async. serially.
-        // TODO: async vs. run vs. launch
+        // todo: explain that we don't want to be editing the same PR at the same time.
+        // actually, a PR can only be opened once... and it's highly unlikely we'd be writing to the same issues.
         call.respondAndLog(HttpStatusCode.OK)
-        linkIssuesToPRs(repoOwner = repoOwner, repoName = repoName, prNumber = prNumber, initialComment = initialComment)
+        /*
+        linkOpenedPRToIssues(repoOwner = repoOwner, repoName = repoName, prNumber = prNumber,
+                initialComment = initialComment)
+                */
+    }
+
+    // TODO: we want to do this for more than just opened.
+    suspend fun linkOpenedPRToIssues(prURL: HttpUrl, commitsURL: HttpUrl, initialPRComment: String) {
+        val commitsJSON = GithubAPIv3("").getCommits(commitsURL) // tODO: instance with oauth.
+        //val commitMessages = commitsJSON?.mapNotNull { commitObj: JsonObject -> commitObj.obj("commit")?.string("message") }
+
+        // get and search for issues #.
+
+        // API to get and set issues by # 2x per issue - big rate limit!
+        // rewrite current PR.
     }
 
     // todo: move to separate module
-    suspend fun linkIssuesToPRs(repoOwner: String, repoName: String, prNumber: Long, initialComment: String) {
+    suspend fun linkOpenedPRToIssues(repoOwner: String, repoName: String, prNumber: Long,
+                                     initialComment: String) = launch(CommonPool) {
         println("linking")
         // get new commits from pull_request/head/repo
         // search commits for issue #'s
 
-        // Rewrite current repo PR with Issue #'s (closes)
-        // Rewrite current repo Issues comment with PR #'s (closes)
+        // (async) Rewrite current repo PR with Issue #'s (closes)
+        // (async) Rewrite current repo Issues comment with PR #'s (closes)
     }
 }
