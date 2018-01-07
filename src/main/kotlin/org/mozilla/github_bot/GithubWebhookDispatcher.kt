@@ -75,34 +75,32 @@ private object GithubWebhookPullRequestDispatcher {
     suspend fun dispatchPROpened(call: ApplicationCall, payload: JsonObject) {
         val pr = payload.obj("pull_request")
 
+        val prNumber = pr?.long("number")
         val prURL = pr?.string("url").toHttpUrl()
         val commitsURL = pr?.string("commits_url").toHttpUrl()
-
-        if (pr == null ||
-                prURL == null ||
-                commitsURL == null) {
-            call.respondAndLog(HttpStatusCode.BadRequest, "Cannot get expected URLs from pull request")
-            return
-        }
-
-        val initialComment = pr.string("body") ?: ""
-        BotActions.linkOpenedPRToIssues(prURL = prURL, commitsURL = commitsURL, initialPRComment = initialComment)
-
-        val prNumber = pr?.long("number")
-
 
         val repo = payload.obj("repository")
         val repoName = repo?.string("name")
         val repoOwner = repo?.obj("owner")?.string("login")
+
+        if (pr == null ||
+                prNumber == null ||
+                prURL == null ||
+                commitsURL == null ||
+                repoName == null ||
+                repoOwner == null) {
+            call.respondAndLog(HttpStatusCode.BadRequest, "Cannot get expected attributes from pull request")
+            return
+        }
+
+        val initialComment = pr.string("body") ?: ""
+        BotActions.linkOpenedPRToIssues(prURL = prURL, commitsURL = commitsURL, initialPRComment = initialComment,
+                repo = RepoPath(owner = repoOwner, name = repoName), prNumber = prNumber)
 
         // TODO: async (return result) vs. run vs. launch
         // TODO: can execute requests concurrently? if so, no need for async. if so, need async. serially.
         // todo: explain that we don't want to be editing the same PR at the same time.
         // actually, a PR can only be opened once... and it's highly unlikely we'd be writing to the same issues.
         call.respondAndLog(HttpStatusCode.OK)
-        /*
-        linkOpenedPRToIssues(repoOwner = repoOwner, repoName = repoName, prNumber = prNumber,
-                initialComment = initialComment)
-                */
     }
 }
