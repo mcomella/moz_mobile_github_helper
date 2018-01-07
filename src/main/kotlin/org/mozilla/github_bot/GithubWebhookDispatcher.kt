@@ -86,7 +86,7 @@ private object GithubWebhookPullRequestDispatcher {
         }
 
         val initialComment = pr.string("body") ?: ""
-        linkOpenedPRToIssues(prURL = prURL, commitsURL = commitsURL, initialPRComment = initialComment)
+        BotActions.linkOpenedPRToIssues(prURL = prURL, commitsURL = commitsURL, initialPRComment = initialComment)
 
         val prNumber = pr?.long("number")
 
@@ -104,27 +104,5 @@ private object GithubWebhookPullRequestDispatcher {
         linkOpenedPRToIssues(repoOwner = repoOwner, repoName = repoName, prNumber = prNumber,
                 initialComment = initialComment)
                 */
-    }
-
-    // TODO: we want to do this for more than just opened.
-    suspend fun linkOpenedPRToIssues(prURL: HttpUrl, commitsURL: HttpUrl, initialPRComment: String) {
-        val commitsJSON = GithubAPIv3("").getCommits(commitsURL) // tODO: instance with oauth.
-        //val commitMessages = commitsJSON?.mapNotNull { commitObj: JsonObject -> commitObj.obj("commit")?.string("message") }
-
-        // get and search for issues #.
-
-        // API to get and set issues by # 2x per issue - big rate limit!
-        // rewrite current PR.
-    }
-
-    // todo: move to separate module
-    suspend fun linkOpenedPRToIssues(repoOwner: String, repoName: String, prNumber: Long,
-                                     initialComment: String) = launch(CommonPool) {
-        println("linking")
-        // get new commits from pull_request/head/repo
-        // search commits for issue #'s
-
-        // (async) Rewrite current repo PR with Issue #'s (closes)
-        // (async) Rewrite current repo Issues comment with PR #'s (closes)
     }
 }
