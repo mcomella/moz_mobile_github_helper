@@ -57,7 +57,7 @@ class GithubAPIv3(private val oauth2Token: String) {
         return null
     }
 
-    suspend fun updatePRComment(url: HttpUrl, comment: String) {
+    suspend fun updatePR(url: HttpUrl, comment: String) {
         val reqBody = RequestBody.create(MEDIA_TYPE_JSON, "{\"body\":\"$comment\"}")
         val request = defaultReqBuilder.patch(reqBody).url(url).build()
         try {

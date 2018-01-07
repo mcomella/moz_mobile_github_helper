@@ -42,6 +42,6 @@ object BotActions {
         val commentToWrite = issueNums.joinToString(separator = "\n", prefix = BOT_PR_HEADER + '\n', postfix = postfix) {
             "- [ ] #$it"
         }
-        github.updatePRComment(prURL, commentToWrite)
+        github.updatePR(prURL, commentToWrite)
     }
 }
